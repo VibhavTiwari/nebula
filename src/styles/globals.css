@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg: #ffffff;
+    --color-bg-secondary: #f8f9fa;
+    --color-bg-tertiary: #f1f3f5;
+    --color-border: #e9ecef;
+    --color-text: #212529;
+    --color-text-secondary: #495057;
+    --color-text-muted: #868e96;
+    --color-primary: #4c6ef5;
+    --color-primary-hover: #4263eb;
+    --color-success: #40c057;
+    --color-warning: #fab005;
+    --color-error: #fa5252;
+    --sidebar-width: 260px;
+    --evidence-width: 340px;
+    --header-height: 48px;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    color: var(--color-text);
+    background: var(--color-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Tauri drag region for window title bar */
+  [data-tauri-drag-region] {
+    -webkit-app-region: drag;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
+  }
+}
+
+@layer components {
+  .nebula-panel {
+    @apply border-r border-surface-3 bg-surface-1 flex flex-col;
+  }
+
+  .nebula-panel-header {
+    @apply px-4 py-3 border-b border-surface-3 font-medium text-sm;
+  }
+
+  .nebula-btn {
+    @apply inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium
+           transition-colors focus:outline-none focus:ring-2 focus:ring-nebula-500 focus:ring-offset-1;
+  }
+
+  .nebula-btn-primary {
+    @apply nebula-btn bg-nebula-600 text-white hover:bg-nebula-700;
+  }
+
+  .nebula-btn-secondary {
+    @apply nebula-btn bg-surface-2 text-surface-dark-4 hover:bg-surface-3;
+  }
+
+  .nebula-input {
+    @apply w-full rounded-md border border-surface-3 bg-white px-3 py-2 text-sm
+           placeholder:text-surface-dark-4 focus:border-nebula-500 focus:outline-none
+           focus:ring-1 focus:ring-nebula-500;
+  }
+
+  .nebula-badge {
+    @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+  }
+
+  .nebula-badge-success {
+    @apply nebula-badge bg-green-100 text-green-700;
+  }
+
+  .nebula-badge-warning {
+    @apply nebula-badge bg-yellow-100 text-yellow-700;
+  }
+
+  .nebula-badge-error {
+    @apply nebula-badge bg-red-100 text-red-700;
+  }
+
+  .nebula-badge-info {
+    @apply nebula-badge bg-blue-100 text-blue-700;
+  }
+}
