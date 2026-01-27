@@ -13,6 +13,7 @@ export function ConversationPane() {
   const activeWorkstreamId = useProjectStore((s) => s.activeWorkstreamId);
   const setActiveWorkstream = useProjectStore((s) => s.setActiveWorkstream);
   const isExecuting = useAgentStore((s) => s.isExecuting);
+  const setExecuting = useAgentStore((s) => s.setExecuting);
 
   const [input, setInput] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
@@ -60,22 +61,73 @@ export function ConversationPane() {
     setInput("");
     setAttachments([]);
 
-    // Simulate agent response (will be replaced by real agent runtime in Phase 3)
-    simulateAgentResponse(message.content);
+    // Simulate multi-agent response chain
+    simulateAgentChain(message.content);
   };
 
-  const simulateAgentResponse = (userMessage: string) => {
+  const simulateAgentChain = (userMessage: string) => {
+    setExecuting(true);
+
+    // CTO Agent responds first with plan
     setTimeout(() => {
-      const response: ConversationMessage = {
+      addMessage({
         id: crypto.randomUUID(),
         role: "assistant",
         content: generatePlanResponse(userMessage),
         timestamp: new Date().toISOString(),
         agentId: "cto-agent",
         agentName: "CTO Agent",
-      };
-      addMessage(response);
+      });
     }, 800);
+
+    // Engineering agent starts building
+    setTimeout(() => {
+      addMessage({
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: `Starting implementation. I'll scaffold the project using the **TypeScript + React + Next.js** stack pack.\n\n\`\`\`\nCreating project structure...\n  src/\n  src/app/layout.tsx\n  src/app/page.tsx\n  src/components/\n  src/lib/\n  package.json\n  tsconfig.json\n  Dockerfile\n  k8s/deployment.yaml\n\`\`\`\n\nProject scaffolded. Now implementing core features...`,
+        timestamp: new Date().toISOString(),
+        agentId: "engineering-agent",
+        agentName: "Engineering Agent",
+      });
+    }, 2500);
+
+    // Testing agent runs tests
+    setTimeout(() => {
+      addMessage({
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: `Running automated test suite:\n\n- Unit tests: **12/12 passed**\n- Integration tests: **4/4 passed**\n- Security scan: **Clean** (0 findings)\n- Performance: **No regressions** (p99 < 200ms)\n\nAll quality gates passed. Ready for deployment.`,
+        timestamp: new Date().toISOString(),
+        agentId: "testing-agent",
+        agentName: "Testing Agent",
+      });
+    }, 4200);
+
+    // DevOps agent deploys
+    setTimeout(() => {
+      addMessage({
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: `Deploying to **staging** environment using canary strategy:\n\n- Canary at 5% traffic... health check passed\n- Canary at 25% traffic... metrics nominal\n- Canary at 100% traffic... deployment complete\n\nService is live at \`https://staging.app.nebula.internal\``,
+        timestamp: new Date().toISOString(),
+        agentId: "devops-agent",
+        agentName: "DevOps Agent",
+      });
+    }, 5800);
+
+    // Scribing agent documents
+    setTimeout(() => {
+      addMessage({
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: `Documentation updated:\n\n- Level 0: Created **3 atomic change notes** in Obsidian vault\n- Level 1: Updated service documentation for the new service\n- Linear: Created tracking issue **NEB-42**\n\nAll phases complete. The feature is built, tested, deployed, and documented.`,
+        timestamp: new Date().toISOString(),
+        agentId: "scribing-agent",
+        agentName: "Scribing Agent",
+      });
+      setExecuting(false);
+    }, 7400);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -101,22 +153,24 @@ export function ConversationPane() {
       <div className="flex-1 overflow-y-auto px-6 py-4">
         {(!conversation || conversation.messages.length === 0) && (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center max-w-lg">
+            <div className="text-center max-w-2xl">
               <h2 className="text-xl font-semibold mb-2">
-                Ask Nebula to build...
+                What would you like to build?
               </h2>
-              <p className="text-surface-dark-4 text-sm mb-4">
-                Describe what you want to create, attach a PRD or design files,
-                and Nebula will generate a plan and start building.
+              <p className="text-surface-dark-4 text-sm mb-6">
+                Describe your idea in natural language. The CTO Agent will analyze your
+                request and coordinate a team of specialized agents to design, build,
+                test, deploy, and document your application.
               </p>
-              <div className="flex flex-wrap gap-2 justify-center">
+              <div className="grid grid-cols-2 gap-3">
                 {EXAMPLE_PROMPTS.map((prompt) => (
                   <button
-                    key={prompt}
-                    onClick={() => setInput(prompt)}
-                    className="text-xs px-3 py-1.5 rounded-full bg-surface-2 text-surface-dark-4 hover:bg-surface-3 transition-colors"
+                    key={prompt.label}
+                    onClick={() => setInput(prompt.text)}
+                    className="text-left px-4 py-3 rounded-lg bg-surface-2 hover:bg-surface-3 transition-colors border border-surface-3"
                   >
-                    {prompt}
+                    <div className="text-sm font-medium mb-0.5">{prompt.label}</div>
+                    <div className="text-xs text-surface-dark-4">{prompt.description}</div>
                   </button>
                 ))}
               </div>
@@ -184,7 +238,7 @@ export function ConversationPane() {
             disabled={(!input.trim() && attachments.length === 0) || isExecuting}
             className="nebula-btn-primary disabled:opacity-50 h-[44px] px-4"
           >
-            {isExecuting ? "Working..." : "Send"}
+            {isExecuting ? "Agents working..." : "Send"}
           </button>
         </div>
       </div>
@@ -193,39 +247,66 @@ export function ConversationPane() {
 }
 
 const EXAMPLE_PROMPTS = [
-  "Build a task management app",
-  "Create a REST API for user management",
-  "Build a landing page from my design",
-  "Add authentication to my existing app",
+  {
+    label: "Task Management App",
+    text: "Build a task management application with user authentication, project boards, and real-time collaboration",
+    description: "Full-stack app with auth and real-time features",
+  },
+  {
+    label: "REST API",
+    text: "Create a REST API for user management with CRUD operations, JWT auth, and role-based access control",
+    description: "Backend service with authentication",
+  },
+  {
+    label: "Landing Page",
+    text: "Build a responsive landing page with hero section, features grid, pricing table, and contact form",
+    description: "Frontend with modern design patterns",
+  },
+  {
+    label: "E-commerce Backend",
+    text: "Build an e-commerce backend with product catalog, shopping cart, order processing, and payment integration",
+    description: "Complex backend with multiple services",
+  },
 ];
 
-function generatePlanResponse(_userMessage: string): string {
-  return `I've analyzed your request. Here's my proposed plan:
+function generatePlanResponse(userMessage: string): string {
+  const lowerMsg = userMessage.toLowerCase();
+  const stackPack = lowerMsg.includes("python") || lowerMsg.includes("django")
+    ? "Python + Django"
+    : lowerMsg.includes("rust")
+    ? "Rust + Axum"
+    : lowerMsg.includes("elixir")
+    ? "Elixir on BEAM"
+    : "TypeScript + React + Next.js";
 
-**Phase 1: Design**
-- Analyze requirements from your description
-- Define system architecture
-- Select appropriate stack pack
+  return `I've analyzed your request and prepared an execution plan.
 
-**Phase 2: Build**
-- Scaffold the project structure
-- Implement core features
-- Set up database and API layers
+**Selected Stack Pack:** ${stackPack}
 
-**Phase 3: Test**
-- Write unit tests
-- Run integration tests
-- Perform security checks
+**Phase 1 - Design**
+- Decompose requirements into service boundaries
+- Define API contracts (OpenAPI spec)
+- Select infrastructure topology
 
-**Phase 4: Deploy**
-- Configure deployment pipeline
-- Deploy to staging environment
-- Run health checks
+**Phase 2 - Build**
+- Scaffold project from stack pack template
+- Implement core business logic
+- Set up database schema and migrations
 
-**Phase 5: Document**
-- Generate Level 0 documentation notes
-- Consolidate Level 1 service documentation
-- Update system overview (Level 2)
+**Phase 3 - Test**
+- Run unit tests (target: >80% coverage)
+- Execute integration tests
+- Perform security scan and dependency audit
 
-Would you like me to proceed with this plan, or would you like to adjust anything?`;
+**Phase 4 - Deploy**
+- Configure Kubernetes manifests
+- Deploy via canary strategy (5% -> 25% -> 100%)
+- Validate health checks and metrics
+
+**Phase 5 - Document**
+- Generate Level 0 atomic change notes
+- Update Level 1 service documentation
+- Create Linear tracking issues
+
+Delegating to department agents now...`;
 }
