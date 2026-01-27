@@ -3,7 +3,7 @@ import { useProjectStore } from "@/stores/projectStore";
 import { useAgentStore } from "@/stores/agentStore";
 import { MessageBubble } from "./MessageBubble";
 import { AttachmentBar } from "./AttachmentBar";
-import type { ConversationMessage, Attachment, Workstream } from "@/types/workstream";
+import type { ConversationMessage, Workstream } from "@/types/workstream";
 
 export function ConversationPane() {
   const conversation = useProjectStore((s) => s.conversation);
@@ -199,7 +199,7 @@ const EXAMPLE_PROMPTS = [
   "Add authentication to my existing app",
 ];
 
-function generatePlanResponse(userMessage: string): string {
+function generatePlanResponse(_userMessage: string): string {
   return `I've analyzed your request. Here's my proposed plan:
 
 **Phase 1: Design**

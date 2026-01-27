@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import type { Project, ProjectRepository } from "@/types/project";
+import type { Project } from "@/types/project";
 import type {
   Workstream,
   WorkstreamStatus,

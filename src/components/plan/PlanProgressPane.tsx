@@ -93,12 +93,12 @@ export function PlanProgressPane() {
       {/* Run summary */}
       {currentRun?.summary && (
         <div className="mt-2 flex items-center gap-4 text-xs text-surface-dark-4">
-          <span>{currentRun.summary.total_events} events</span>
-          <span>{currentRun.summary.code_changes} changes</span>
+          <span>{currentRun.summary.totalEvents} events</span>
+          <span>{currentRun.summary.codeChanges} changes</span>
           <span>
-            {currentRun.summary.tests_passed}/{currentRun.summary.tests_run} tests
+            {currentRun.summary.testsPassed}/{currentRun.summary.testsRun} tests
           </span>
-          <span>{currentRun.summary.documentation_updates} docs</span>
+          <span>{currentRun.summary.documentationUpdates} docs</span>
         </div>
       )}
     </div>

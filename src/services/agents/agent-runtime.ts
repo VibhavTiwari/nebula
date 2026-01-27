@@ -397,13 +397,13 @@ export class AgentRuntime {
    */
   private checkPermission(
     agentRole: string,
-    action: string,
+    _action: string,
     _projectId: string
   ): void {
     // Policy enforcement will be fully implemented in Phase 11
     // For now, all agents are allowed to execute within their defined scope
     const rolePerms =
-      this.config.policy.toolPermissions.rolePermissions[agentRole];
+      this.config.policy.toolPermissions.rolePermissions[agentRole as keyof typeof this.config.policy.toolPermissions.rolePermissions];
     if (!rolePerms && agentRole !== "cto") {
       // Check default permissions
       const defaultPerms = this.config.policy.toolPermissions.defaultPermissions;

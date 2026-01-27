@@ -5,7 +5,7 @@
  * Supports file tree navigation, diffs, search, blame, and structural outline.
  */
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import Editor, { DiffEditor } from "@monaco-editor/react";
 import clsx from "clsx";
 
@@ -27,15 +27,15 @@ export interface FileEntry {
 
 type ViewMode = "edit" | "diff" | "blame";
 
-export function CodeViewer({ files, onFileSelect, onSave, readOnly = true }: Props) {
+export function CodeViewer({ files, onFileSelect, onSave: _onSave, readOnly = true }: Props) {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string>("");
   const [viewMode, setViewMode] = useState<ViewMode>("edit");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showOutline, setShowOutline] = useState(false);
-  const [outline, setOutline] = useState<OutlineEntry[]>([]);
-  const [diffOriginal, setDiffOriginal] = useState<string>("");
+  const [outline] = useState<OutlineEntry[]>([]);
+  const [diffOriginal] = useState<string>("");
 
   const handleFileClick = useCallback(
     (path: string) => {
@@ -274,7 +274,7 @@ function FileTree({
 }
 
 function ViewModeButton({
-  mode,
+  mode: _mode,
   active,
   onClick,
   label,

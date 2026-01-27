@@ -5,7 +5,7 @@
  * and building deep links. File-based integration using the vault directory.
  */
 
-import type { ObsidianNote, ObsidianDeepLink } from "@/types/integration";
+import type { ObsidianNote } from "@/types/integration";
 
 export class ObsidianService {
   private vaultPath: string;

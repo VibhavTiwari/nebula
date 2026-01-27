@@ -5,9 +5,7 @@
  * Provides tool connectivity for agents via the MCP standard.
  */
 
-import type { MCPServer, MCPTool, MCPTransport } from "@/types/integration";
 import type { ToolDefinition, MCPToolRegistry } from "@/services/agents/agent-runtime";
-import type { AgentRole } from "@/types/policy";
 
 /**
  * MCP Tool Registry — manages available tools and permissions

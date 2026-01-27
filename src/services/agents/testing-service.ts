@@ -110,7 +110,7 @@ export class TestingService {
    * Run performance benchmark
    */
   async runPerformanceBenchmark(
-    repoPath: string,
+    _repoPath: string,
     stackPack: string
   ): Promise<PerformanceBenchmarkResult> {
     const command = STACK_TEST_COMMANDS[stackPack]?.perf;

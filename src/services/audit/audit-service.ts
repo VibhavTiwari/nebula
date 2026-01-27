@@ -7,9 +7,6 @@
 
 import type {
   AuditEvent,
-  AuditEventType,
-  AuditActor,
-  AuditPayload,
   RunRecord,
   RunSummary,
 } from "@/types/audit";
@@ -151,8 +148,8 @@ export class AuditService {
     };
 
     const startEvent = events.find((e) => e.type === "run.started");
-    const endEvent = events.findLast(
-      (e) => e.type === "run.completed" || e.type === "run.failed"
+    const endEvent = [...events].reverse().find(
+      (e: AuditEvent) => e.type === "run.completed" || e.type === "run.failed"
     );
 
     if (startEvent && endEvent) {

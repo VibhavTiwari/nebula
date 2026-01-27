@@ -11,7 +11,14 @@ export class DeploymentService {
    */
   async deployToKubernetes(params: KubernetesDeployParams): Promise<DeploymentResult> {
     const manifest = this.generateKubernetesManifest(params);
-    const rolloutConfig = this.generateArgoRolloutsConfig(params);
+    const manifests: Record<string, string> = { deployment: manifest };
+
+    if (params.strategy !== "rolling") {
+      manifests.rollout = this.generateArgoRolloutsConfig({
+        ...params,
+        strategy: params.strategy as "canary" | "blue-green",
+      });
+    }
 
     return {
       id: crypto.randomUUID(),
@@ -21,10 +28,7 @@ export class DeploymentService {
       strategy: params.strategy,
       service: params.serviceName,
       version: params.version,
-      manifests: {
-        deployment: manifest,
-        rollout: rolloutConfig,
-      },
+      manifests,
       createdAt: new Date().toISOString(),
     };
   }
@@ -352,7 +356,7 @@ metadata:
   /**
    * Destroy an ephemeral preview environment
    */
-  async destroyPreviewEnvironment(namespace: string): Promise<void> {
+  async destroyPreviewEnvironment(_namespace: string): Promise<void> {
     // Would execute: kubectl delete namespace <namespace>
   }
 

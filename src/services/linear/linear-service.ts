@@ -5,7 +5,7 @@
  * Uses Linear GraphQL API and webhooks.
  */
 
-import type { LinearIssue, LinearEpic } from "@/types/integration";
+import type { LinearIssue } from "@/types/integration";
 
 const LINEAR_API_URL = "https://api.linear.app/graphql";
 

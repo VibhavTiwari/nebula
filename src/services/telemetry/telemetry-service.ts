@@ -17,7 +17,7 @@ export class TelemetryService {
     samplingRate?: number;
   }): string {
     const redactionProcessors = params.redactionPatterns.map(
-      (rule, i) => `    redaction/${rule.name}:
+      (rule, _i) => `    redaction/${rule.name}:
       allow_all_keys: true
       blocked_values:
         - "${rule.pattern}"

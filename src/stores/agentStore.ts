@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import type { AgentInstance, AgentStatus, AgentToolCall } from "@/types/agent";
-import type { RunRecord, RunSummary } from "@/types/audit";
+import type { RunRecord } from "@/types/audit";
 
 interface AgentState {
   /** Active agent instances for current run */

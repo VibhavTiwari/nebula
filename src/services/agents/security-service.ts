@@ -52,7 +52,7 @@ export class SecurityService {
    * Validate tool call parameters for injection attempts
    */
   validateToolCall(
-    toolId: string,
+    _toolId: string,
     parameters: Record<string, unknown>
   ): ToolValidationResult {
     const issues: string[] = [];

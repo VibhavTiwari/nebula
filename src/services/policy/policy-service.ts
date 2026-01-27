@@ -5,7 +5,7 @@
  * Evaluates permissions for agents before tool execution.
  */
 
-import type { NebulaPolicy, AgentRole, Gate, GateType } from "@/types/policy";
+import type { NebulaPolicy, AgentRole, Gate } from "@/types/policy";
 import { createDefaultPolicy } from "@/types/policy";
 
 export class PolicyService {

@@ -128,7 +128,8 @@ export class FigmaService {
     return { colors, typography, spacing: {} };
   }
 
-  private async request(path: string): Promise<Record<string, unknown>> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async request(path: string): Promise<any> {
     const response = await fetch(`${FIGMA_API_URL}${path}`, {
       headers: {
         "X-Figma-Token": this.apiKey,
