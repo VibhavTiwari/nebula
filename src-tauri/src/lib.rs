@@ -13,7 +13,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .setup(|app| {
-            let handle = app.handle().clone();
+            let _handle = app.handle().clone();
             tracing_subscriber::fmt::init();
             tracing::info!("Nebula IDE starting...");
 
