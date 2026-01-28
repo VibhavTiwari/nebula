@@ -83,13 +83,103 @@ export interface AgentGraph {
 
 export type AgentGraphNodeType =
   | "agent"
+  | "classify"
+  | "end"
+  | "note"
+  | "file-search"
+  | "guardrails"
+  | "mcp"
   | "tool-call"
+  | "if-else"
+  | "while-loop"
+  | "user-approval"
   | "transform"
+  | "set-state"
+  | "start"
   | "gate"
   | "question"
-  | "deploy-step"
-  | "start"
-  | "end";
+  | "deploy-step";
+
+export interface AgentNodeConfig {
+  model?: string;
+  instructions?: string;
+  temperature?: number;
+  maxTokens?: number;
+  tools?: string[];
+  handoff?: string[];
+}
+
+export interface ClassifyNodeConfig {
+  categories: ClassifyCategory[];
+  model?: string;
+  instructions?: string;
+}
+
+export interface ClassifyCategory {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface IfElseNodeConfig {
+  condition: string;
+  conditionType: "code" | "llm" | "variable";
+}
+
+export interface WhileLoopNodeConfig {
+  condition: string;
+  conditionType: "code" | "llm" | "variable";
+  maxIterations: number;
+  childNodeIds: string[];
+}
+
+export interface UserApprovalNodeConfig {
+  prompt: string;
+  timeoutSeconds?: number;
+}
+
+export interface TransformNodeConfig {
+  code: string;
+  language: "javascript" | "python";
+}
+
+export interface SetStateNodeConfig {
+  key: string;
+  value: string;
+  valueType: "string" | "number" | "boolean" | "json";
+}
+
+export interface FileSearchNodeConfig {
+  vectorStoreIds: string[];
+  maxResults?: number;
+}
+
+export interface GuardrailsNodeConfig {
+  rules: GuardrailRule[];
+}
+
+export interface GuardrailRule {
+  id: string;
+  name: string;
+  type: "input" | "output";
+  condition: string;
+  action: "block" | "warn" | "log";
+}
+
+export interface McpNodeConfig {
+  serverId: string;
+  toolName: string;
+  parameters: Record<string, unknown>;
+}
+
+export interface NoteNodeConfig {
+  text: string;
+  color?: string;
+}
+
+export interface EndNodeConfig {
+  outputMapping?: Record<string, string>;
+}
 
 export interface AgentGraphNode {
   id: string;
@@ -107,6 +197,10 @@ export interface AgentGraphNode {
   /** Input/output type schema (JSON Schema) */
   inputSchema?: Record<string, unknown>;
   outputSchema?: Record<string, unknown>;
+
+  /** Width/height for container nodes like while-loop */
+  width?: number;
+  height?: number;
 }
 
 export interface AgentGraphEdge {
