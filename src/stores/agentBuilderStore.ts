@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type { Node, Edge } from "reactflow";
 
@@ -132,8 +133,9 @@ const initialState = {
 /* ------------------------------------------------------------------ */
 
 export const useAgentBuilderStore = create<AgentBuilderState>()(
-  immer((set) => ({
-    ...initialState,
+  persist(
+    immer((set) => ({
+      ...initialState,
 
     /* ------ Workflow metadata ------ */
 
@@ -318,5 +320,19 @@ export const useAgentBuilderStore = create<AgentBuilderState>()(
         state.evaluationResults = [];
         state.isDirty = false;
       }),
-  })),
+    })),
+    {
+      name: "nebula-agent-builder",
+      // Only persist workflow data, not transient UI state
+      partialize: (state) => ({
+        workflowId: state.workflowId,
+        workflowName: state.workflowName,
+        workflowDescription: state.workflowDescription,
+        workflowStatus: state.workflowStatus,
+        workflowVersion: state.workflowVersion,
+        nodes: state.nodes,
+        edges: state.edges,
+      }),
+    }
+  )
 );

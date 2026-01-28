@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type { Project } from "@/types/project";
 import type {
@@ -26,12 +27,17 @@ interface ProjectState {
   /** Conversation for active workstream */
   conversation: Conversation | null;
 
+  /** All conversations indexed by workstream ID (for persistence) */
+  conversationsByWorkstream: Record<string, Conversation>;
+
   /** Loading states */
   isLoading: boolean;
 
   /** Actions */
   setProjects: (projects: Project[]) => void;
   addProject: (project: Project) => void;
+  updateProject: (projectId: string, updates: Partial<Project>) => void;
+  deleteProject: (projectId: string) => void;
   setActiveProject: (projectId: string | null) => void;
   setWorkstreams: (workstreams: Workstream[]) => void;
   addWorkstream: (workstream: Workstream) => void;
@@ -44,89 +50,138 @@ interface ProjectState {
 }
 
 export const useProjectStore = create<ProjectState>()(
-  immer((set) => ({
-    projects: [],
-    activeProjectId: null,
-    workstreams: [],
-    activeWorkstreamId: null,
-    conversation: null,
-    isLoading: false,
+  persist(
+    immer((set) => ({
+      projects: [],
+      activeProjectId: null,
+      workstreams: [],
+      activeWorkstreamId: null,
+      conversation: null,
+      conversationsByWorkstream: {},
+      isLoading: false,
 
-    setProjects: (projects) =>
-      set((state) => {
-        state.projects = projects;
-      }),
+      setProjects: (projects) =>
+        set((state) => {
+          state.projects = projects;
+        }),
 
-    addProject: (project) =>
-      set((state) => {
-        state.projects.push(project);
-      }),
+      addProject: (project) =>
+        set((state) => {
+          state.projects.push(project);
+        }),
 
-    setActiveProject: (projectId) =>
-      set((state) => {
-        state.activeProjectId = projectId;
-        state.activeWorkstreamId = null;
-        state.workstreams = [];
-        state.conversation = null;
-      }),
+      updateProject: (projectId, updates) =>
+        set((state) => {
+          const project = state.projects.find((p) => p.id === projectId);
+          if (project) {
+            Object.assign(project, updates);
+          }
+        }),
 
-    setWorkstreams: (workstreams) =>
-      set((state) => {
-        state.workstreams = workstreams;
-      }),
+      deleteProject: (projectId) =>
+        set((state) => {
+          state.projects = state.projects.filter((p) => p.id !== projectId);
+          // Also remove workstreams for this project
+          state.workstreams = state.workstreams.filter(
+            (w) => w.projectId !== projectId
+          );
+          // Clear active selections if deleted project was active
+          if (state.activeProjectId === projectId) {
+            state.activeProjectId = null;
+            state.activeWorkstreamId = null;
+            state.conversation = null;
+          }
+        }),
 
-    addWorkstream: (workstream) =>
-      set((state) => {
-        state.workstreams.push(workstream);
-      }),
-
-    setActiveWorkstream: (workstreamId) =>
-      set((state) => {
-        state.activeWorkstreamId = workstreamId;
-        if (workstreamId) {
-          state.conversation = {
-            id: workstreamId,
-            workstreamId,
-            messages:
-              state.workstreams.find((w) => w.id === workstreamId)
-                ?.userRequest
-                ? []
-                : [],
-            createdAt: new Date().toISOString(),
-          };
-        } else {
+      setActiveProject: (projectId) =>
+        set((state) => {
+          state.activeProjectId = projectId;
+          state.activeWorkstreamId = null;
+          // Load workstreams for this project (they're stored inline)
+          // In a real app, you might filter from a global workstreams array
           state.conversation = null;
-        }
-      }),
+        }),
 
-    updateWorkstreamStatus: (workstreamId, status) =>
-      set((state) => {
-        const ws = state.workstreams.find((w) => w.id === workstreamId);
-        if (ws) ws.status = status;
-      }),
+      setWorkstreams: (workstreams) =>
+        set((state) => {
+          state.workstreams = workstreams;
+        }),
 
-    updateWorkstreamPhase: (workstreamId, phase) =>
-      set((state) => {
-        const ws = state.workstreams.find((w) => w.id === workstreamId);
-        if (ws) ws.currentPhase = phase;
-      }),
+      addWorkstream: (workstream) =>
+        set((state) => {
+          state.workstreams.push(workstream);
+        }),
 
-    addMessage: (message) =>
-      set((state) => {
-        if (state.conversation) {
-          state.conversation.messages.push(message);
-        }
-      }),
+      setActiveWorkstream: (workstreamId) =>
+        set((state) => {
+          state.activeWorkstreamId = workstreamId;
+          if (workstreamId) {
+            // Check if we have a saved conversation for this workstream
+            const savedConversation =
+              state.conversationsByWorkstream[workstreamId];
+            if (savedConversation) {
+              state.conversation = savedConversation;
+            } else {
+              // Create new conversation
+              const newConversation: Conversation = {
+                id: workstreamId,
+                workstreamId,
+                messages: [],
+                createdAt: new Date().toISOString(),
+              };
+              state.conversation = newConversation;
+              state.conversationsByWorkstream[workstreamId] = newConversation;
+            }
+          } else {
+            state.conversation = null;
+          }
+        }),
 
-    addEvidence: (workstreamId, evidence) =>
-      set((state) => {
-        const ws = state.workstreams.find((w) => w.id === workstreamId);
-        if (ws) ws.evidence.push(evidence);
-      }),
+      updateWorkstreamStatus: (workstreamId, status) =>
+        set((state) => {
+          const ws = state.workstreams.find((w) => w.id === workstreamId);
+          if (ws) ws.status = status;
+        }),
 
-    setLoading: (loading) =>
-      set((state) => {
-        state.isLoading = loading;
+      updateWorkstreamPhase: (workstreamId, phase) =>
+        set((state) => {
+          const ws = state.workstreams.find((w) => w.id === workstreamId);
+          if (ws) ws.currentPhase = phase;
+        }),
+
+      addMessage: (message) =>
+        set((state) => {
+          if (state.conversation) {
+            state.conversation.messages.push(message);
+            // Also update the persisted conversations record
+            const wsId = state.conversation.workstreamId;
+            if (state.conversationsByWorkstream[wsId]) {
+              state.conversationsByWorkstream[wsId].messages.push(message);
+            }
+          }
+        }),
+
+      addEvidence: (workstreamId, evidence) =>
+        set((state) => {
+          const ws = state.workstreams.find((w) => w.id === workstreamId);
+          if (ws) ws.evidence.push(evidence);
+        }),
+
+      setLoading: (loading) =>
+        set((state) => {
+          state.isLoading = loading;
+        }),
+    })),
+    {
+      name: "nebula-projects",
+      // Only persist these keys (not transient state like isLoading)
+      partialize: (state) => ({
+        projects: state.projects,
+        workstreams: state.workstreams,
+        conversationsByWorkstream: state.conversationsByWorkstream,
+        activeProjectId: state.activeProjectId,
+        activeWorkstreamId: state.activeWorkstreamId,
       }),
-  }))
+    }
+  )
 );
