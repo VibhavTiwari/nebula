@@ -4,9 +4,12 @@ import { ConversationPane } from "@/components/conversation/ConversationPane";
 import { PlanProgressPane } from "@/components/plan/PlanProgressPane";
 import { EvidencePane } from "@/components/evidence/EvidencePane";
 import { AgentBuilderCanvas } from "@/components/agent-builder/AgentBuilderCanvas";
+import { WorkflowListView } from "@/components/agent-builder/WorkflowListView";
 import { CodeViewer, type FileEntry } from "@/components/code-viewer/CodeViewer";
 import { TitleBar } from "./TitleBar";
 import { useProjectStore } from "@/stores/projectStore";
+import { useWorkflowStore } from "@/stores/workflowStore";
+import { useAgentBuilderStore } from "@/stores/agentBuilderStore";
 import clsx from "clsx";
 
 type ViewTab = "conversation" | "agent-builder" | "code-viewer";
@@ -54,6 +57,33 @@ export function MainLayout() {
   const activeWorkstreamId = useProjectStore((s) => s.activeWorkstreamId);
   const [showEvidence, setShowEvidence] = useState(true);
   const [activeView, setActiveView] = useState<ViewTab>("conversation");
+
+  // Agent Builder workflow state
+  const { editingWorkflowId, setEditingWorkflowId, getWorkflow } = useWorkflowStore();
+  const { loadWorkflow } = useAgentBuilderStore();
+
+  // Handle opening a workflow for editing
+  const handleOpenWorkflow = (workflowId: string) => {
+    const workflow = getWorkflow(workflowId);
+    if (workflow) {
+      // Load workflow data into the agent builder store
+      loadWorkflow({
+        id: workflow.id,
+        name: workflow.name,
+        description: workflow.description,
+        version: "1.0",
+        status: workflow.status,
+        nodes: [], // Nodes will be loaded from persisted state or start fresh
+        edges: [],
+      });
+      setEditingWorkflowId(workflowId);
+    }
+  };
+
+  // Handle going back to the workflow list
+  const handleBackToList = () => {
+    setEditingWorkflowId(null);
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -112,7 +142,25 @@ export function MainLayout() {
                 {activeWorkstreamId && <PlanProgressPane />}
               </>
             ) : activeView === "agent-builder" ? (
-              <AgentBuilderCanvas />
+              editingWorkflowId ? (
+                <div className="flex flex-col flex-1 min-w-0">
+                  {/* Back button header */}
+                  <div className="flex items-center gap-3 px-4 py-2 bg-white border-b border-surface-3">
+                    <button
+                      onClick={handleBackToList}
+                      className="flex items-center gap-1.5 text-sm text-surface-dark-4 hover:text-gray-700 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                      </svg>
+                      Back to workflows
+                    </button>
+                  </div>
+                  <AgentBuilderCanvas />
+                </div>
+              ) : (
+                <WorkflowListView onOpenWorkflow={handleOpenWorkflow} />
+              )
             ) : activeView === "code-viewer" ? (
               <CodeViewer files={DEMO_FILES} />
             ) : null}
