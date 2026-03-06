@@ -3,6 +3,7 @@
  *
  * Displays available node types grouped by category.
  * Supports drag-and-drop onto the canvas as well as click-to-add.
+ * Dark theme design.
  */
 
 import { useState } from "react";
@@ -157,18 +158,18 @@ interface PaletteNode {
 
 interface PaletteCategory {
   name: string;
-  color: string;          // Tailwind text color for the header
-  headerBg: string;       // Tailwind bg color for the header
-  dotColor: string;       // Tailwind bg for the small dot
+  color: string;          // Tailwind text color
+  accentBg: string;       // Background for category header
+  dotColor: string;       // Dot color
   nodes: PaletteNode[];
 }
 
 const PALETTE_CATEGORIES: PaletteCategory[] = [
   {
     name: "Core",
-    color: "text-blue-700",
-    headerBg: "bg-blue-50",
-    dotColor: "bg-blue-500",
+    color: "text-nebula-400",
+    accentBg: "bg-nebula-500/10",
+    dotColor: "bg-nebula-500",
     nodes: [
       {
         type: "agent",
@@ -198,9 +199,9 @@ const PALETTE_CATEGORIES: PaletteCategory[] = [
   },
   {
     name: "Tools",
-    color: "text-green-700",
-    headerBg: "bg-green-50",
-    dotColor: "bg-green-500",
+    color: "text-accent-green",
+    accentBg: "bg-accent-green/10",
+    dotColor: "bg-accent-green",
     nodes: [
       {
         type: "file-search",
@@ -224,9 +225,9 @@ const PALETTE_CATEGORIES: PaletteCategory[] = [
   },
   {
     name: "Logic",
-    color: "text-orange-700",
-    headerBg: "bg-orange-50",
-    dotColor: "bg-orange-500",
+    color: "text-accent-orange",
+    accentBg: "bg-accent-orange/10",
+    dotColor: "bg-accent-orange",
     nodes: [
       {
         type: "if-else",
@@ -250,9 +251,9 @@ const PALETTE_CATEGORIES: PaletteCategory[] = [
   },
   {
     name: "Data",
-    color: "text-purple-700",
-    headerBg: "bg-purple-50",
-    dotColor: "bg-purple-500",
+    color: "text-accent-purple",
+    accentBg: "bg-accent-purple/10",
+    dotColor: "bg-accent-purple",
     nodes: [
       {
         type: "transform",
@@ -293,14 +294,17 @@ export function NodePalette({ onAddNode }: NodePaletteProps) {
   };
 
   return (
-    <aside className="w-[240px] nebula-panel shrink-0 select-none">
+    <aside className="w-[260px] bg-panel-card border-r border-panel-border flex flex-col shrink-0 select-none">
       {/* Header */}
-      <div className="nebula-panel-header">Add Nodes</div>
+      <div className="px-4 py-3 border-b border-panel-border">
+        <h2 className="text-sm font-semibold text-text-primary">Add Nodes</h2>
+        <p className="text-xs text-text-muted mt-0.5">Drag or click to add</p>
+      </div>
 
       {/* Search / filter */}
-      <div className="px-3 py-2 border-b border-surface-3">
+      <div className="px-3 py-3 border-b border-panel-border">
         <div className="relative">
-          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-surface-dark-4 pointer-events-none">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">
             <IconSearchFilter />
           </span>
           <input
@@ -308,7 +312,7 @@ export function NodePalette({ onAddNode }: NodePaletteProps) {
             placeholder="Filter nodes..."
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="nebula-input pl-8 py-1.5 text-xs"
+            className="nebula-input pl-9 py-2 text-xs"
           />
         </div>
       </div>
@@ -316,7 +320,7 @@ export function NodePalette({ onAddNode }: NodePaletteProps) {
       {/* Scrollable category list */}
       <div className="flex-1 overflow-y-auto">
         {filteredCategories.length === 0 && (
-          <div className="px-4 py-8 text-xs text-surface-dark-4 text-center">
+          <div className="px-4 py-8 text-xs text-text-muted text-center">
             No nodes match &ldquo;{filter}&rdquo;
           </div>
         )}
@@ -326,8 +330,8 @@ export function NodePalette({ onAddNode }: NodePaletteProps) {
             {/* Category header */}
             <div
               className={clsx(
-                "flex items-center gap-2 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide",
-                category.headerBg,
+                "flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider",
+                category.accentBg,
                 category.color
               )}
             >
@@ -336,7 +340,7 @@ export function NodePalette({ onAddNode }: NodePaletteProps) {
             </div>
 
             {/* Nodes */}
-            <div className="py-1">
+            <div className="py-1 px-2">
               {category.nodes.map((node) => (
                 <div
                   key={node.type}
@@ -344,11 +348,11 @@ export function NodePalette({ onAddNode }: NodePaletteProps) {
                   onDragStart={(e) => handleDragStart(e, node.type)}
                   onClick={() => onAddNode(node.type)}
                   className={clsx(
-                    "flex items-start gap-2.5 mx-2 my-0.5 px-2.5 py-2 rounded-md cursor-grab",
+                    "flex items-start gap-3 px-3 py-2.5 rounded-lg cursor-grab",
                     "border border-transparent",
-                    "hover:bg-surface-2 hover:border-surface-3",
-                    "active:cursor-grabbing active:bg-surface-3",
-                    "transition-colors duration-100"
+                    "hover:bg-panel-hover hover:border-panel-border",
+                    "active:cursor-grabbing active:bg-panel-elevated",
+                    "transition-all duration-150"
                   )}
                   title={`Drag or click to add ${node.label}`}
                 >
@@ -359,10 +363,10 @@ export function NodePalette({ onAddNode }: NodePaletteProps) {
 
                   {/* Label + description */}
                   <div className="min-w-0">
-                    <div className="text-xs font-medium text-surface-dark-0 leading-tight">
+                    <div className="text-xs font-medium text-text-primary leading-tight">
                       {node.label}
                     </div>
-                    <div className="text-[11px] leading-snug text-surface-dark-4 mt-0.5">
+                    <div className="text-[11px] leading-snug text-text-muted mt-0.5">
                       {node.description}
                     </div>
                   </div>

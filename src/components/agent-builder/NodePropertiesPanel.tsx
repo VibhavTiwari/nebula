@@ -3,6 +3,7 @@
  *
  * Right-side panel for editing selected node configuration.
  * Renders type-specific form fields based on the node type.
+ * Dark theme design.
  */
 
 import { useCallback } from "react";
@@ -53,30 +54,30 @@ const TOOL_OPTIONS = [
 ];
 
 const NOTE_COLORS = [
-  { name: "yellow", value: "#fef9c3" },
-  { name: "blue", value: "#dbeafe" },
-  { name: "green", value: "#dcfce7" },
-  { name: "pink", value: "#fce7f3" },
+  { name: "yellow", value: "#713f12", borderColor: "border-accent-yellow" },
+  { name: "blue", value: "#1e3a5f", borderColor: "border-accent-blue" },
+  { name: "green", value: "#166534", borderColor: "border-accent-green" },
+  { name: "pink", value: "#831843", borderColor: "border-accent-pink" },
 ];
 
-const NODE_META: Record<string, { icon: string; color: string }> = {
-  agent: { icon: "A", color: "bg-blue-100 text-blue-700" },
-  classify: { icon: "C", color: "bg-indigo-100 text-indigo-700" },
-  end: { icon: "E", color: "bg-gray-100 text-gray-700" },
-  note: { icon: "N", color: "bg-yellow-100 text-yellow-700" },
-  "file-search": { icon: "F", color: "bg-purple-100 text-purple-700" },
-  guardrails: { icon: "G", color: "bg-red-100 text-red-700" },
-  mcp: { icon: "M", color: "bg-cyan-100 text-cyan-700" },
-  "if-else": { icon: "?", color: "bg-orange-100 text-orange-700" },
-  "while-loop": { icon: "W", color: "bg-amber-100 text-amber-700" },
-  "user-approval": { icon: "U", color: "bg-teal-100 text-teal-700" },
-  transform: { icon: "X", color: "bg-amber-100 text-amber-700" },
-  "set-state": { icon: "S", color: "bg-emerald-100 text-emerald-700" },
-  start: { icon: "S", color: "bg-green-100 text-green-700" },
-  "tool-call": { icon: "T", color: "bg-purple-100 text-purple-700" },
-  gate: { icon: "G", color: "bg-red-100 text-red-700" },
-  question: { icon: "?", color: "bg-teal-100 text-teal-700" },
-  "deploy-step": { icon: "D", color: "bg-orange-100 text-orange-700" },
+const NODE_META: Record<string, { icon: string; color: string; bgColor: string }> = {
+  agent: { icon: "A", color: "text-nebula-400", bgColor: "bg-nebula-500/20" },
+  classify: { icon: "C", color: "text-accent-purple", bgColor: "bg-accent-purple/20" },
+  end: { icon: "E", color: "text-text-muted", bgColor: "bg-panel-hover" },
+  note: { icon: "N", color: "text-accent-yellow", bgColor: "bg-accent-yellow/20" },
+  "file-search": { icon: "F", color: "text-accent-green", bgColor: "bg-accent-green/20" },
+  guardrails: { icon: "G", color: "text-accent-red", bgColor: "bg-accent-red/20" },
+  mcp: { icon: "M", color: "text-accent-teal", bgColor: "bg-accent-teal/20" },
+  "if-else": { icon: "?", color: "text-accent-orange", bgColor: "bg-accent-orange/20" },
+  "while-loop": { icon: "W", color: "text-accent-indigo", bgColor: "bg-accent-indigo/20" },
+  "user-approval": { icon: "U", color: "text-accent-blue", bgColor: "bg-accent-blue/20" },
+  transform: { icon: "X", color: "text-accent-amber", bgColor: "bg-accent-amber/20" },
+  "set-state": { icon: "S", color: "text-accent-sky", bgColor: "bg-accent-sky/20" },
+  start: { icon: "S", color: "text-accent-green", bgColor: "bg-accent-green/20" },
+  "tool-call": { icon: "T", color: "text-accent-purple", bgColor: "bg-accent-purple/20" },
+  gate: { icon: "G", color: "text-accent-red", bgColor: "bg-accent-red/20" },
+  question: { icon: "?", color: "text-accent-teal", bgColor: "bg-accent-teal/20" },
+  "deploy-step": { icon: "D", color: "text-accent-orange", bgColor: "bg-accent-orange/20" },
 };
 
 // ── Main Component ──
@@ -89,7 +90,7 @@ export function NodePropertiesPanel({
 }: NodePropertiesPanelProps) {
   const data = node.data as Record<string, unknown>;
   const nodeType = node.type || "agent";
-  const meta = NODE_META[nodeType] || { icon: "?", color: "bg-gray-100 text-gray-700" };
+  const meta = NODE_META[nodeType] || { icon: "?", color: "text-text-muted", bgColor: "bg-panel-hover" };
 
   const update = useCallback(
     (patch: Record<string, unknown>) => {
@@ -109,31 +110,32 @@ export function NodePropertiesPanel({
   const config = (data.config ?? {}) as Record<string, unknown>;
 
   return (
-    <aside className="w-80 border-l border-surface-3 bg-white flex flex-col h-full shrink-0">
+    <aside className="w-80 border-l border-panel-border bg-panel-card flex flex-col h-full shrink-0 nebula-slide-in">
       {/* ── Header ── */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-surface-3">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-panel-border">
         <div className="flex items-center gap-2">
           <div
             className={clsx(
-              "w-6 h-6 rounded flex items-center justify-center text-xs font-bold",
+              "w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold",
+              meta.bgColor,
               meta.color
             )}
           >
             {meta.icon}
           </div>
-          <span className="text-sm font-medium capitalize">{nodeType.replace(/-/g, " ")}</span>
+          <span className="text-sm font-medium text-text-primary capitalize">{nodeType.replace(/-/g, " ")}</span>
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={() => onDelete(node.id)}
-            className="p-1.5 rounded hover:bg-red-50 text-surface-dark-4 hover:text-red-600 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-accent-red-soft text-text-muted hover:text-accent-red transition-colors"
             title="Delete node"
           >
             <TrashIcon />
           </button>
           <button
             onClick={onClose}
-            className="p-1.5 rounded hover:bg-surface-2 text-surface-dark-4 hover:text-surface-dark-0 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-panel-hover text-text-muted hover:text-text-primary transition-colors"
             title="Close panel"
           >
             <CloseIcon />
@@ -155,7 +157,7 @@ export function NodePropertiesPanel({
             />
           </Field>
           <Field label="Node ID">
-            <div className="text-xs font-mono text-surface-dark-4 bg-surface-1 rounded px-2 py-1.5 border border-surface-3 select-all">
+            <div className="text-xs font-mono text-text-muted bg-panel-bg rounded-lg px-3 py-2 border border-panel-border select-all">
               {node.id}
             </div>
           </Field>
@@ -208,7 +210,7 @@ export function NodePropertiesPanel({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h4 className="text-xs font-semibold text-surface-dark-4 uppercase tracking-wide mb-3">
+      <h4 className="nebula-section-title">
         {title}
       </h4>
       <div className="space-y-3">{children}</div>
@@ -219,7 +221,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs text-surface-dark-4 mb-1">{label}</label>
+      <label className="nebula-label">{label}</label>
       {children}
     </div>
   );
@@ -266,7 +268,7 @@ function AgentFields({ config, updateConfig }: FieldProps) {
         <select
           value={(config.model as string) ?? "gpt-4o"}
           onChange={(e) => updateConfig({ model: e.target.value })}
-          className="nebula-input text-sm"
+          className="nebula-select text-sm"
         >
           {MODEL_OPTIONS.map((m) => (
             <option key={m} value={m}>{m}</option>
@@ -278,7 +280,7 @@ function AgentFields({ config, updateConfig }: FieldProps) {
         <textarea
           value={(config.instructions as string) ?? ""}
           onChange={(e) => updateConfig({ instructions: e.target.value })}
-          className="nebula-input text-sm resize-none"
+          className="nebula-textarea text-sm"
           rows={6}
           placeholder="System instructions for this agent..."
         />
@@ -310,16 +312,16 @@ function AgentFields({ config, updateConfig }: FieldProps) {
       </Field>
 
       <Field label="Tools">
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {TOOL_OPTIONS.map((tool) => (
-            <label key={tool} className="flex items-center gap-2 text-sm cursor-pointer">
+            <label key={tool} className="flex items-center gap-2.5 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={tools.includes(tool)}
                 onChange={() => toggleTool(tool)}
-                className="rounded border-surface-3 text-nebula-600 focus:ring-nebula-500"
+                className="nebula-checkbox w-4 h-4"
               />
-              <span className="text-xs font-mono">{tool}</span>
+              <span className="text-xs font-mono text-text-secondary group-hover:text-text-primary transition-colors">{tool}</span>
             </label>
           ))}
         </div>
@@ -329,7 +331,7 @@ function AgentFields({ config, updateConfig }: FieldProps) {
         <textarea
           value={(config.handoffAgents as string) ?? ""}
           onChange={(e) => updateConfig({ handoffAgents: e.target.value })}
-          className="nebula-input text-sm resize-none"
+          className="nebula-textarea text-sm"
           rows={2}
           placeholder="Comma-separated agent IDs..."
         />
@@ -362,7 +364,7 @@ function ClassifyFields({ config, updateConfig }: FieldProps) {
         <textarea
           value={(config.instructions as string) ?? ""}
           onChange={(e) => updateConfig({ instructions: e.target.value })}
-          className="nebula-input text-sm resize-none"
+          className="nebula-textarea text-sm"
           rows={4}
           placeholder="Classification instructions..."
         />
@@ -372,7 +374,7 @@ function ClassifyFields({ config, updateConfig }: FieldProps) {
         <select
           value={(config.model as string) ?? "gpt-4o"}
           onChange={(e) => updateConfig({ model: e.target.value })}
-          className="nebula-input text-sm"
+          className="nebula-select text-sm"
         >
           {MODEL_OPTIONS.map((m) => (
             <option key={m} value={m}>{m}</option>
@@ -382,25 +384,25 @@ function ClassifyFields({ config, updateConfig }: FieldProps) {
 
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="text-xs text-surface-dark-4">Categories</label>
+          <label className="nebula-label !mb-0">Categories</label>
           <button
             onClick={addCategory}
-            className="text-xs text-nebula-600 hover:text-nebula-700 font-medium"
+            className="text-xs text-nebula-400 hover:text-nebula-300 font-medium transition-colors"
           >
             + Add Category
           </button>
         </div>
         <div className="space-y-3">
           {categories.map((cat, i) => (
-            <div key={i} className="border border-surface-3 rounded-md p-2.5 relative">
+            <div key={i} className="border border-panel-border rounded-lg p-3 relative bg-panel-bg">
               <button
                 onClick={() => removeCategory(i)}
-                className="absolute top-1.5 right-1.5 text-surface-dark-4 hover:text-red-500 transition-colors"
+                className="absolute top-2 right-2 text-text-muted hover:text-accent-red transition-colors"
                 title="Remove category"
               >
                 <CloseIcon />
               </button>
-              <div className="space-y-2 pr-5">
+              <div className="space-y-2 pr-6">
                 <input
                   type="text"
                   value={cat.name}
@@ -411,7 +413,7 @@ function ClassifyFields({ config, updateConfig }: FieldProps) {
                 <textarea
                   value={cat.description}
                   onChange={(e) => updateCategory(i, { description: e.target.value })}
-                  className="nebula-input text-sm resize-none"
+                  className="nebula-textarea text-sm"
                   rows={2}
                   placeholder="Category description"
                 />
@@ -419,7 +421,7 @@ function ClassifyFields({ config, updateConfig }: FieldProps) {
             </div>
           ))}
           {categories.length === 0 && (
-            <div className="text-xs text-surface-dark-4 text-center py-3">
+            <div className="text-xs text-text-muted text-center py-4 border border-dashed border-panel-border rounded-lg">
               No categories defined. Click &quot;+ Add Category&quot; to create one.
             </div>
           )}
@@ -451,17 +453,17 @@ function EndFields({ config, updateConfig }: FieldProps) {
     <Section title="End Configuration">
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="text-xs text-surface-dark-4">Output Mapping</label>
+          <label className="nebula-label !mb-0">Output Mapping</label>
           <button
             onClick={addMapping}
-            className="text-xs text-nebula-600 hover:text-nebula-700 font-medium"
+            className="text-xs text-nebula-400 hover:text-nebula-300 font-medium transition-colors"
           >
             + Add Row
           </button>
         </div>
         <div className="space-y-2">
           {mappings.map((m, i) => (
-            <div key={i} className="flex items-center gap-1.5">
+            <div key={i} className="flex items-center gap-2">
               <input
                 type="text"
                 value={m.key}
@@ -469,7 +471,7 @@ function EndFields({ config, updateConfig }: FieldProps) {
                 className="nebula-input text-sm flex-1"
                 placeholder="Key"
               />
-              <span className="text-xs text-surface-dark-4 shrink-0">:</span>
+              <span className="text-xs text-text-muted shrink-0">:</span>
               <input
                 type="text"
                 value={m.value}
@@ -479,7 +481,7 @@ function EndFields({ config, updateConfig }: FieldProps) {
               />
               <button
                 onClick={() => removeMapping(i)}
-                className="text-surface-dark-4 hover:text-red-500 shrink-0 p-0.5"
+                className="text-text-muted hover:text-accent-red shrink-0 p-1"
                 title="Remove row"
               >
                 <CloseIcon />
@@ -487,7 +489,7 @@ function EndFields({ config, updateConfig }: FieldProps) {
             </div>
           ))}
           {mappings.length === 0 && (
-            <div className="text-xs text-surface-dark-4 text-center py-3">
+            <div className="text-xs text-text-muted text-center py-4 border border-dashed border-panel-border rounded-lg">
               No output mappings. Click &quot;+ Add Row&quot; to add one.
             </div>
           )}
@@ -506,7 +508,7 @@ function NoteFields({ config, updateConfig }: FieldProps) {
         <textarea
           value={(config.text as string) ?? ""}
           onChange={(e) => updateConfig({ text: e.target.value })}
-          className="nebula-input text-sm resize-none"
+          className="nebula-textarea text-sm"
           rows={4}
           placeholder="Note text..."
         />
@@ -519,10 +521,10 @@ function NoteFields({ config, updateConfig }: FieldProps) {
               key={c.name}
               onClick={() => updateConfig({ color: c.value })}
               className={clsx(
-                "w-8 h-8 rounded-md border-2 transition-all",
+                "w-8 h-8 rounded-lg border-2 transition-all",
                 (config.color as string) === c.value
-                  ? "border-nebula-500 scale-110"
-                  : "border-surface-3 hover:border-surface-dark-4"
+                  ? `${c.borderColor} scale-110`
+                  : "border-panel-border hover:border-panel-border-light"
               )}
               style={{ backgroundColor: c.value }}
               title={c.name}
@@ -558,7 +560,7 @@ function FileSearchFields({ config, updateConfig }: FieldProps) {
     <Section title="File Search Configuration">
       <Field label="Vector Store IDs">
         <div className="space-y-2">
-          <div className="flex gap-1.5">
+          <div className="flex gap-2">
             <input
               type="text"
               value={inputValue}
@@ -583,12 +585,12 @@ function FileSearchFields({ config, updateConfig }: FieldProps) {
             {vectorStoreIds.map((id) => (
               <span
                 key={id}
-                className="inline-flex items-center gap-1 bg-surface-2 text-xs font-mono px-2 py-1 rounded"
+                className="inline-flex items-center gap-1.5 bg-panel-hover text-xs font-mono px-2 py-1 rounded-lg border border-panel-border"
               >
                 {id}
                 <button
                   onClick={() => removeVectorStoreId(id)}
-                  className="text-surface-dark-4 hover:text-red-500"
+                  className="text-text-muted hover:text-accent-red transition-colors"
                 >
                   <CloseIcon />
                 </button>
@@ -638,25 +640,25 @@ function GuardrailsFields({ config, updateConfig }: FieldProps) {
     <Section title="Guardrails Configuration">
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="text-xs text-surface-dark-4">Rules</label>
+          <label className="nebula-label !mb-0">Rules</label>
           <button
             onClick={addRule}
-            className="text-xs text-nebula-600 hover:text-nebula-700 font-medium"
+            className="text-xs text-nebula-400 hover:text-nebula-300 font-medium transition-colors"
           >
             + Add Rule
           </button>
         </div>
         <div className="space-y-3">
           {rules.map((rule, i) => (
-            <div key={i} className="border border-surface-3 rounded-md p-2.5 relative">
+            <div key={i} className="border border-panel-border rounded-lg p-3 relative bg-panel-bg">
               <button
                 onClick={() => removeRule(i)}
-                className="absolute top-1.5 right-1.5 text-surface-dark-4 hover:text-red-500 transition-colors"
+                className="absolute top-2 right-2 text-text-muted hover:text-accent-red transition-colors"
                 title="Remove rule"
               >
                 <CloseIcon />
               </button>
-              <div className="space-y-2 pr-5">
+              <div className="space-y-2 pr-6">
                 <input
                   type="text"
                   value={rule.name}
@@ -666,24 +668,24 @@ function GuardrailsFields({ config, updateConfig }: FieldProps) {
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-xs text-surface-dark-4 mb-0.5">Type</label>
+                    <label className="nebula-label">Type</label>
                     <select
                       value={rule.type}
                       onChange={(e) => updateRule(i, { type: e.target.value as "input" | "output" })}
-                      className="nebula-input text-sm"
+                      className="nebula-select text-sm"
                     >
                       <option value="input">Input</option>
                       <option value="output">Output</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-surface-dark-4 mb-0.5">Action</label>
+                    <label className="nebula-label">Action</label>
                     <select
                       value={rule.action}
                       onChange={(e) =>
                         updateRule(i, { action: e.target.value as "block" | "warn" | "log" })
                       }
-                      className="nebula-input text-sm"
+                      className="nebula-select text-sm"
                     >
                       <option value="block">Block</option>
                       <option value="warn">Warn</option>
@@ -702,7 +704,7 @@ function GuardrailsFields({ config, updateConfig }: FieldProps) {
             </div>
           ))}
           {rules.length === 0 && (
-            <div className="text-xs text-surface-dark-4 text-center py-3">
+            <div className="text-xs text-text-muted text-center py-4 border border-dashed border-panel-border rounded-lg">
               No rules defined. Click &quot;+ Add Rule&quot; to create one.
             </div>
           )}
@@ -741,7 +743,7 @@ function McpFields({ config, updateConfig }: FieldProps) {
         <textarea
           value={(config.parameters as string) ?? "{\n  \n}"}
           onChange={(e) => updateConfig({ parameters: e.target.value })}
-          className="nebula-input text-sm resize-none font-mono"
+          className="nebula-textarea text-sm font-mono"
           rows={6}
           placeholder='{"key": "value"}'
           spellCheck={false}
@@ -760,7 +762,7 @@ function IfElseFields({ config, updateConfig }: FieldProps) {
         <select
           value={(config.conditionType as string) ?? "code"}
           onChange={(e) => updateConfig({ conditionType: e.target.value })}
-          className="nebula-input text-sm"
+          className="nebula-select text-sm"
         >
           <option value="code">Code</option>
           <option value="llm">LLM</option>
@@ -772,21 +774,21 @@ function IfElseFields({ config, updateConfig }: FieldProps) {
         <textarea
           value={(config.condition as string) ?? ""}
           onChange={(e) => updateConfig({ condition: e.target.value })}
-          className="nebula-input text-sm resize-none font-mono"
+          className="nebula-textarea text-sm font-mono"
           rows={4}
           placeholder="Enter condition expression..."
           spellCheck={false}
         />
       </Field>
 
-      <div className="pt-2 space-y-1.5">
+      <div className="pt-2 space-y-2">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-green-500" />
-          <span className="text-xs font-medium text-green-700">Pass (true)</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-accent-green" />
+          <span className="text-xs font-medium text-accent-green">Pass (true)</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-red-500" />
-          <span className="text-xs font-medium text-red-700">Fail (false)</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-accent-red" />
+          <span className="text-xs font-medium text-accent-red">Fail (false)</span>
         </div>
       </div>
     </Section>
@@ -802,7 +804,7 @@ function WhileLoopFields({ config, updateConfig }: FieldProps) {
         <select
           value={(config.conditionType as string) ?? "code"}
           onChange={(e) => updateConfig({ conditionType: e.target.value })}
-          className="nebula-input text-sm"
+          className="nebula-select text-sm"
         >
           <option value="code">Code</option>
           <option value="llm">LLM</option>
@@ -814,7 +816,7 @@ function WhileLoopFields({ config, updateConfig }: FieldProps) {
         <textarea
           value={(config.condition as string) ?? ""}
           onChange={(e) => updateConfig({ condition: e.target.value })}
-          className="nebula-input text-sm resize-none font-mono"
+          className="nebula-textarea text-sm font-mono"
           rows={4}
           placeholder="Loop condition expression..."
           spellCheck={false}
@@ -845,7 +847,7 @@ function UserApprovalFields({ config, updateConfig }: FieldProps) {
         <textarea
           value={(config.prompt as string) ?? ""}
           onChange={(e) => updateConfig({ prompt: e.target.value })}
-          className="nebula-input text-sm resize-none"
+          className="nebula-textarea text-sm"
           rows={4}
           placeholder="Message shown to user for approval..."
         />
@@ -876,7 +878,7 @@ function TransformFields({ config, updateConfig }: FieldProps) {
         <select
           value={(config.language as string) ?? "javascript"}
           onChange={(e) => updateConfig({ language: e.target.value })}
-          className="nebula-input text-sm"
+          className="nebula-select text-sm"
         >
           <option value="javascript">JavaScript</option>
           <option value="python">Python</option>
@@ -887,7 +889,7 @@ function TransformFields({ config, updateConfig }: FieldProps) {
         <textarea
           value={(config.code as string) ?? ""}
           onChange={(e) => updateConfig({ code: e.target.value })}
-          className="nebula-input text-sm resize-none font-mono"
+          className="nebula-textarea text-sm font-mono"
           rows={8}
           placeholder="// Transform code..."
           spellCheck={false}
@@ -926,7 +928,7 @@ function SetStateFields({ config, updateConfig }: FieldProps) {
         <select
           value={(config.valueType as string) ?? "string"}
           onChange={(e) => updateConfig({ valueType: e.target.value })}
-          className="nebula-input text-sm"
+          className="nebula-select text-sm"
         >
           <option value="string">String</option>
           <option value="number">Number</option>
